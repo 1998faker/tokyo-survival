@@ -182,12 +182,92 @@ const minatoyaData = {"floors":[{"name":"大堂与寄存处","grid":["##########
   const currentDay = () => run()?.day === campaign?.day;
   function fresh(day) {
     return {day,f:1,x:1,y:1,hp:100,max:100,a:10,d:4,level:1,xp:0,money:0,income:0,keys:{Y:0,B:0,R:0},
-      dead:{},taken:{},open:{},seen:{'1,1,1':true},groups:{},buys:{5:0,10:0},guard:0,speed:1,cat:false};
+      dead:{},taken:{},open:{},seen:{'1,1,1':true},groups:{},buys:{5:0,10:0},guard:0,speed:1,cat:false,
+      duty:{phase:'desk',guest:0,stars:5,rules:{},log:[]}};
   }
   function persist(text) {
     message = text;
     campaignSave();
     render();
+  }
+  const patrolPoints = [
+    {id:'rule207', index:1, x:7, choices:['不回应，把门牌记进巡查表','隔着门问一声']},
+    {id:'door', index:2, x:9, choices:['退回电梯口，请前台核对门数','推开多出来的门']}
+  ];
+  function corridorEvent(r) {
+    if (!r.duty?.rules || r.f!==2 || r.y>2) return;
+    return patrolPoints.find(point=>r.x>=point.x&&!r.duty.rules[point.id]);
+  }
+  function dutyScreen(title,text) {
+    const heading = document.createElement('h2');
+    heading.textContent = title;
+    const line = document.createElement('p');
+    line.textContent = text;
+    const hint = document.createElement('p');
+    hint.className = 'mn-hint';
+    hint.setAttribute('role','status');
+    hint.textContent = message;
+    const actions = document.createElement('div');
+    actions.className = 'mn-actions';
+    overlay.replaceChildren(heading,line,hint,actions);
+    return actions;
+  }
+  function renderDesk(r) {
+    const duty = r.duty, guest = NS_GUESTS[duty.guest];
+    if (!guest) {
+      const actions = dutyScreen('港屋酒店 · 交接簿','最后一位客人离开后，前台电话又响了。有人说猫从客房溜了出去。森经理把手电递给你：「先去二楼。206 那边有人听见过动静。」');
+      actions.append(button('带上巡查表和手电',()=>{
+        if (duty.phase!=='desk') return;
+        duty.phase = 'patrol';
+        persist('巡查表背面夹着夜班守则。先去 2F，从 206 客房外的走廊查起。');
+      }));
+      actions.append(button('暂停并返回',()=>overlay.close()));
+      return;
+    }
+    const index = duty.guest;
+    const actions = dutyScreen('港屋酒店 · 前台值守 '+(index+1)+'/'+NS_GUESTS.length+' · ★'+duty.stars+'/5',guest.line);
+    guest.opts.forEach((option,i)=>actions.append(button(option,()=>{
+      if (duty.guest!==index || duty.phase!=='desk') return;
+      const correct = i===guest.ok;
+      if (!correct) duty.stars = Math.max(0,duty.stars-1);
+      const result = correct ? guest.note : '客人停了一下，又把刚才的要求说了一遍。（星 −1）';
+      duty.log.push('前台：'+result);
+      duty.guest++;
+      persist(result);
+    })));
+    actions.append(button('暂停并返回',()=>overlay.close()));
+  }
+  function renderRule(r,point) {
+    const duty = r.duty, rule = NS_PATROL[point.index];
+    const actions = dutyScreen('2F · '+rule.at,rule.text);
+    point.choices.forEach((choice,i)=>actions.append(button(choice,()=>{
+      if (duty.rules[point.id] || corridorEvent(r)!==point) return;
+      duty.rules[point.id] = i===0?'kept':'broken';
+      if (i===0) duty.stars = Math.min(5,duty.stars+1);
+      else {
+        campaign.san = sanClamp(campaign.san-8);
+        sanAtmosphere();
+      }
+      const result = point.id==='rule207'
+        ? (i===0?'你只记下门牌。笔尖抬起时，敲门声停了。':'你刚问完，门里也有人用你的声音问了一遍。')
+        : (i===0?'你退回电梯口。前台核对了名册。等你再抬头，门的数目已经对上了。':'门里又是一条一模一样的走廊。你没等看清，就把门拉了回来。');
+      if (point.id==='door'&&i===0) moveTo(...find(2,'E'));
+      const note = result+(i===0?'（遵守守则，星级 +1，上限 5）':'（SAN −8）');
+      duty.log.push(rule.at+'：'+note);
+      persist(note);
+    })));
+    actions.append(button('暂停并返回',()=>overlay.close()));
+  }
+  function atHandover(r) {
+    return r.cat && r.f===1 && tile(r.f,r.x,r.y)==='F';
+  }
+  function renderAlley() {
+    const actions = dutyScreen('港屋酒店 · 后巷','回到前台时，猫在你怀里挣了一下。小林听见动静，从后巷推开半扇员工门，把他值夜时用的空纸箱递给你。');
+    const line = document.createElement('p');
+    line.textContent = '小林低头看着猫：「夜里这楼，比白天诚实。」';
+    actions.before(line);
+    actions.append(button('把猫交给前台，签交班簿',()=>settle(true)));
+    actions.append(button('暂停并返回',()=>overlay.close()));
   }
   function moveTo(f,x,y) {
     const r = run();
@@ -280,7 +360,8 @@ const minatoyaData = {"floors":[{"name":"大堂与寄存处","grid":["##########
   }
   function move(x,y) {
     const r = run();
-    if (!r || !currentDay() || busy || Math.abs(x-r.x)+Math.abs(y-r.y)!==1) return;
+    if (!r || !currentDay() || busy || r.duty?.phase==='desk' || r.duty?.phase==='alley'
+        || corridorEvent(r) || Math.abs(x-r.x)+Math.abs(y-r.y)!==1) return;
     const c = tile(r.f,x,y), id = coord(r.f,x,y);
     if ('#!'.includes(c) || (c === '=' && !(r.f === 10 && x===1 && y===5))) return;
     const monster = live(r,x,y);
@@ -321,9 +402,17 @@ const minatoyaData = {"floors":[{"name":"大堂与寄存处","grid":["##########
   function settle(success) {
     const r = run(), C = GAME_CONFIG.work.nightShift;
     if (!r || busy || !currentDay() || campaign.nightShiftDay===campaign.day) return;
-    if (success && !(r.cat && r.f===1 && tile(r.f,r.x,r.y)==='F')) return;
+    if (success && (!atHandover(r) || r.duty?.phase!=='alley')) return;
     const rate = r.income ? r.money/r.income : 0;
-    const tier = !success ? 0 : rate>=.65 ? 3 : rate>=.35 ? 2 : 1;
+    const patrolTier = rate>=.65 ? 3 : rate>=.35 ? 2 : 1;
+    const dutyTier = r.duty?.stars == null ? 3 : (GAME_CONFIG.v74?.nightTier?.[r.duty.stars] || 0);
+    const tier = success ? Math.min(patrolTier,dutyTier) : 0;
+    const metKobayashi = success && !campaign.minatoyaKobayashiTrust;
+    if (metKobayashi) {
+      campaign.minatoyaKobayashiTrust = true;
+      campaign.trust ??= {};
+      campaign.trust.kobayashi = (campaign.trust.kobayashi || 0)+1;
+    }
     const bonus = [0,1000,2000,5000][tier];
     const allowance = success ? (window.V74?.allowance('night') || 0) : 0;
     const base = success ? C.income : 0;
@@ -335,13 +424,15 @@ const minatoyaData = {"floors":[{"name":"大堂与寄存处","grid":["##########
     campaign.nightShiftDay = campaign.day;
     delete campaign.minatoyaRun;
     const receipt = success ? '酒店夜勤 · '+ '★'.repeat(tier)+' · 基础 ¥'+base+' · 塔内收入 ¥'+r.income+' · 强化支出 ¥'+(r.income-r.money)+' · 带出 ¥'+r.money+' · 星级奖金 ¥'+bonus+' · 道具津贴 ¥'+allowance+' · 实发 ¥'+wage : '提前离班。本班塔内收入未结算。';
-    (campaign.nightShiftLog ??= []).push(receipt);
+    const dutyNote = r.duty?.stars == null ? '' : ' · 值守与守则 ★'+r.duty.stars+' / 5';
+    const trustNote = metKobayashi ? ' · 小林信任 +1' : '';
+    (campaign.nightShiftLog ??= []).push([...(r.duty?.log || []),receipt+dutyNote+trustNote].join(' / '));
     recoveryRefresh(receipt);
     overlay.replaceChildren();
     const title = document.createElement('h2');
     title.textContent = success?'夜班工资单':'夜班结束';
     const line = document.createElement('p');
-    line.textContent = receipt;
+    line.textContent = receipt+dutyNote+trustNote;
     const close = document.createElement('button');
     close.textContent = '返回酒店';
     close.onclick = () => overlay.close();
@@ -360,6 +451,10 @@ const minatoyaData = {"floors":[{"name":"大堂与寄存处","grid":["##########
   function render() {
     const r = run();
     if (!r || !overlay.open) return;
+    if (r.duty?.phase==='desk') { renderDesk(r); return; }
+    if (r.duty?.phase==='alley') { renderAlley(); return; }
+    const point = corridorEvent(r);
+    if (point) { renderRule(r,point); return; }
     const focus = document.activeElement?.dataset?.mnCell;
     const floor = D.floors[r.f-1];
     const c = tile(r.f,r.x,r.y);
@@ -444,7 +539,11 @@ const minatoyaData = {"floors":[{"name":"大堂与寄存处","grid":["##########
         persist('已领取'+g.name+'。');
       }));
     }
-    if(c==='F'&&r.cat) actions.append(button('救猫交班',()=>settle(true)));
+    if(atHandover(r)) actions.append(button('抱着猫去交班',()=>{
+      r.duty ??= {log:[]};
+      r.duty.phase = 'alley';
+      persist('');
+    }));
     actions.append(button('暂停并返回',()=>overlay.close()),button('提前离班',()=>{if(confirm('结束本班？塔内收入不会结算。'))settle(false);}));
     overlay.querySelector('.mn-hint').textContent = message || '点击怪物查看战损，方向键或屏幕箭头踏入开战。';
   }
@@ -464,7 +563,7 @@ const minatoyaData = {"floors":[{"name":"大堂与寄存处","grid":["##########
       if(!spendAction('work')) return;
       campaign.minatoyaRun=fresh(campaign.day);
       campaignSave();
-      message='有住客避开前台，把小猫带进酒店。现在猫不见了。';
+      message='佐藤把交接簿翻到今晚那一页。你刚坐下，铃就响了。';
     } else message='继续本班夜勤。';
     selection=null;
     if(!overlay.open) overlay.showModal();
@@ -476,7 +575,7 @@ const minatoyaData = {"floors":[{"name":"大堂与寄存处","grid":["##########
     oldButton.apply(this,arguments);
     const entry=box.children[first], note=box.children[first+1];
     if(entry&&currentDay()) entry.textContent='继续港屋酒店夜勤';
-    if(note&&!nightShiftGate().length) note.textContent='酒店夜勤 · 进入 15 层酒店，找到走失的小猫，回前台交班。';
+    if(note&&!nightShiftGate().length) note.textContent='夜勤：先在前台接待客人，再按守则巡楼。找到走失的小猫后，回前台交班。';
   };
 })();
 

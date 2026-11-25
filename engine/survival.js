@@ -4229,7 +4229,7 @@ function shell(sc,pg){
  if(window.AUDIO)AUDIO.ambience((pg&&pg.ambience)||sc.ambience||'void');
  app.innerHTML=`<div class="op-root op-${style}${pg&&pg.fx==='black'?' op-black':''}" id="op-root">
   <div class="op-bar"><span class="op-label">${esc((pg&&pg.label)||sc.label||'')}</span><span class="op-tools"><button type="button" class="op-skip${ff?' on':''}" id="op-ff">${ff?'■ 停止快进':'⏩ 快进'}</button><button type="button" class="op-skip" id="op-scene">⏭ 跳过本幕</button><button type="button" class="op-skip" id="op-skip">⏏ 跳过序章</button></span></div>
-  <div class="op-stage" id="op-stage">${pgBg(sc,pg)?'<canvas class="op-bg" id="op-bg" '+(pgBg(sc,pg)==='airport'&&window.PXART?'width="512" height="352"':'width="480" height="300"')+' aria-hidden="true"></canvas>':''}<div class="op-body" id="op-body" aria-live="polite"></div></div>
+  <div class="op-stage${pgBg(sc,pg)==='tokyoEvening'?' op-evening':''}" id="op-stage">${pgBg(sc,pg)?'<canvas class="op-bg" id="op-bg" '+(pgBg(sc,pg)==='airport'&&window.PXART?'width="512" height="352"':'width="480" height="300"')+' aria-hidden="true"></canvas>':''}<div class="op-body" id="op-body" aria-live="polite"></div></div>
   <div class="op-ctl"><button type="button" class="survival-btn alt op-prev" id="op-prev" hidden>◀ 上一页</button><button type="button" class="survival-btn op-next" id="op-next" hidden>▶ 下一段</button></div></div>`;
  app.querySelector('#op-skip').onclick=skip;
  app.querySelector('#op-scene').onclick=skipScene;
@@ -4453,8 +4453,103 @@ function skip(){
 }
 
 /* ---------- 背景（程序绘制） ---------- */
+/* 第二页的三个像素镜头与逐行出现的旁白同步。 */
+function drawTokyoEvening(cv){
+ const c=cv.getContext('2d');
+ const body=document.getElementById('op-body');
+ const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+ const descriptions=['下班的人走过斑马线。','店员在收银台扫描便当。','乘客靠着窗睡着，窗外灯光掠过。'];
+ cv.width=320;cv.height=146;
+ cv.removeAttribute('aria-hidden');
+ cv.setAttribute('role','img');
+ const rect=(color,x,y,w,h)=>{c.fillStyle=color;c.fillRect(Math.floor(x),y,w,h)};
+ let shot=-1,start=0;
+ function frame(now){
+  if(!cv.isConnected)return;
+  const current=Math.max(0,Math.min(2,body.childElementCount-1));
+  if(current!==shot){
+   shot=current;start=now;
+   cv.setAttribute('aria-label',descriptions[shot]);
+  }
+  const t=reduced?0:(now-start)/1000;
+  rect('#121c2b',0,0,320,146);
+  if(shot===0){
+   for(let i=0;i<7;i++){
+    const x=i*49,y=i%2?12:23;
+    rect(i%2?'#263747':'#1e2e40',x,y,43,64);
+    for(let j=0;j<3;j++)rect(j===1?'#df9e69':'#607b82',x+5+j*11,y+12,6,12);
+   }
+   rect('#42505a',0,78,320,11);
+   rect('#273542',0,89,320,57);
+   for(let x=26;x<300;x+=29)rect('#778991',x,103,15,25);
+   rect('#64737c',264,57,3,37);
+   rect('#14202c',260,52,11,18);
+   rect('#6dc09b',263,62,5,5);
+   const coats=['#596a8e','#915d58','#427d78','#a28764'];
+   coats.forEach((coat,i)=>{
+    const x=25+i*52+(i%2?-1:1)*(t*36%52);
+    const y=106+(i%2)*7;
+    const stride=Math.floor(t*9+i)%2;
+    rect('#14202a',x+1,y+11,3,10-stride*3);
+    rect('#14202a',x+6,y+11,3,7+stride*3);
+    rect(coat,x-1,y-1,12,14);
+    rect('#bc987d',x+1,y-8,8,8);
+    rect('#3b3437',x+1,y-9,8,3);
+   });
+  }else if(shot===1){
+   rect('#30434b',0,14,320,67);
+   rect('#d0c5a0',0,15,320,5);
+   for(let x=16;x<320;x+=22){
+    rect('#786950',x,32,13,12);
+    rect('#526d68',x+3,53,14,14);
+   }
+   rect('#202f3a',0,70,320,11);
+   rect('#405f5f',83,63,48,35);
+   rect('#b98e74',98,45,19,20);
+   rect('#2c3239',96,43,23,8);
+   rect('#847461',0,94,320,52);
+   rect('#aa9170',0,94,320,7);
+   rect('#24343f',156,60,56,30);
+   rect('#72938b',162,65,43,7);
+   rect('#4e605e',139,87,76,7);
+   const x=106+Math.min(t*220,88);
+   rect('#23282a',x,100,54,23);
+   rect('#ded0ad',x+3,103,48,16);
+   rect('#a97455',x+6,106,27,10);
+   rect('#718564',x+36,106,11,10);
+   if(t>.16&&t<.32)rect('#d77a68',164,105,3,16);
+   if(t>.4){
+    rect('#bda882',198,90,51,36);
+    rect('#bda882',203,81,4,15);
+    rect('#bda882',240,81,4,15);
+    rect('#9c8766',207,110,32,4);
+   }
+  }else{
+   rect('#3d4d59',0,0,320,109);
+   rect('#212f3d',35,17,251,69);
+   rect('#131e30',41,23,239,57);
+   for(let i=0;i<11;i++){
+    const x=43+((i*39+240-(t*(30+i*5))%237)%237);
+    rect(i%3?'#506779':'#c7a478',x,41+(i*13)%30,4+i%3,2);
+   }
+   rect('#617782',40,80,241,4);
+   rect('#514b65',0,99,320,29);
+   rect('#615871',0,99,320,5);
+   rect('#2c3945',0,128,320,18);
+   rect('#243747',199,86,40,37);
+   rect('#243747',218,91,28,26);
+   rect('#2b262d',196,65,22,21);
+   rect('#af8c76',204,71,17,15);
+   rect('#2b262d',198,67,17,5);
+   rect('#5f4650',251,108,23,16);
+  }
+  anim=requestAnimationFrame(frame);
+ }
+ frame(performance.now());
+}
+
 function drawBg(kind){
- cancelAnimationFrame(anim);const cv=document.getElementById('op-bg');if(!cv||!kind)return;const c=cv.getContext('2d');c.imageSmoothingEnabled=false;
+ cancelAnimationFrame(anim);const cv=document.getElementById('op-bg');if(!cv||!kind)return;if(kind==='tokyoEvening'){drawTokyoEvening(cv);return}const c=cv.getContext('2d');c.imageSmoothingEnabled=false;
  const W=cv.width,H=cv.height,lights=[...Array(140)].map((_,i)=>({x:(i*97)%W,y:H*0.45+((i*53)%Math.round(H*0.55)),s:1+(i%3),c:['#f2d48a','#e8ebf0','#d7a879','#b69ce8'][i%4],p:i%7}));
  let t0=0;const loop=ts=>{if(!document.body.contains(cv))return;if(ts-t0>60){t0=ts;const t=ts/1000;
   if(kind==='airport'&&window.PXART&&cv.width===512){PXART.draw('op_airport',c,t,{},{});anim=requestAnimationFrame(loop);return}
@@ -15563,12 +15658,92 @@ const minatoyaData = {"floors":[{"name":"大堂与寄存处","grid":["##########
   const currentDay = () => run()?.day === campaign?.day;
   function fresh(day) {
     return {day,f:1,x:1,y:1,hp:100,max:100,a:10,d:4,level:1,xp:0,money:0,income:0,keys:{Y:0,B:0,R:0},
-      dead:{},taken:{},open:{},seen:{'1,1,1':true},groups:{},buys:{5:0,10:0},guard:0,speed:1,cat:false};
+      dead:{},taken:{},open:{},seen:{'1,1,1':true},groups:{},buys:{5:0,10:0},guard:0,speed:1,cat:false,
+      duty:{phase:'desk',guest:0,stars:5,rules:{},log:[]}};
   }
   function persist(text) {
     message = text;
     campaignSave();
     render();
+  }
+  const patrolPoints = [
+    {id:'rule207', index:1, x:7, choices:['不回应，把门牌记进巡查表','隔着门问一声']},
+    {id:'door', index:2, x:9, choices:['退回电梯口，请前台核对门数','推开多出来的门']}
+  ];
+  function corridorEvent(r) {
+    if (!r.duty?.rules || r.f!==2 || r.y>2) return;
+    return patrolPoints.find(point=>r.x>=point.x&&!r.duty.rules[point.id]);
+  }
+  function dutyScreen(title,text) {
+    const heading = document.createElement('h2');
+    heading.textContent = title;
+    const line = document.createElement('p');
+    line.textContent = text;
+    const hint = document.createElement('p');
+    hint.className = 'mn-hint';
+    hint.setAttribute('role','status');
+    hint.textContent = message;
+    const actions = document.createElement('div');
+    actions.className = 'mn-actions';
+    overlay.replaceChildren(heading,line,hint,actions);
+    return actions;
+  }
+  function renderDesk(r) {
+    const duty = r.duty, guest = NS_GUESTS[duty.guest];
+    if (!guest) {
+      const actions = dutyScreen('港屋酒店 · 交接簿','最后一位客人离开后，前台电话又响了。有人说猫从客房溜了出去。森经理把手电递给你：「先去二楼。206 那边有人听见过动静。」');
+      actions.append(button('带上巡查表和手电',()=>{
+        if (duty.phase!=='desk') return;
+        duty.phase = 'patrol';
+        persist('巡查表背面夹着夜班守则。先去 2F，从 206 客房外的走廊查起。');
+      }));
+      actions.append(button('暂停并返回',()=>overlay.close()));
+      return;
+    }
+    const index = duty.guest;
+    const actions = dutyScreen('港屋酒店 · 前台值守 '+(index+1)+'/'+NS_GUESTS.length+' · ★'+duty.stars+'/5',guest.line);
+    guest.opts.forEach((option,i)=>actions.append(button(option,()=>{
+      if (duty.guest!==index || duty.phase!=='desk') return;
+      const correct = i===guest.ok;
+      if (!correct) duty.stars = Math.max(0,duty.stars-1);
+      const result = correct ? guest.note : '客人停了一下，又把刚才的要求说了一遍。（星 −1）';
+      duty.log.push('前台：'+result);
+      duty.guest++;
+      persist(result);
+    })));
+    actions.append(button('暂停并返回',()=>overlay.close()));
+  }
+  function renderRule(r,point) {
+    const duty = r.duty, rule = NS_PATROL[point.index];
+    const actions = dutyScreen('2F · '+rule.at,rule.text);
+    point.choices.forEach((choice,i)=>actions.append(button(choice,()=>{
+      if (duty.rules[point.id] || corridorEvent(r)!==point) return;
+      duty.rules[point.id] = i===0?'kept':'broken';
+      if (i===0) duty.stars = Math.min(5,duty.stars+1);
+      else {
+        campaign.san = sanClamp(campaign.san-8);
+        sanAtmosphere();
+      }
+      const result = point.id==='rule207'
+        ? (i===0?'你只记下门牌。笔尖抬起时，敲门声停了。':'你刚问完，门里也有人用你的声音问了一遍。')
+        : (i===0?'你退回电梯口。前台核对了名册。等你再抬头，门的数目已经对上了。':'门里又是一条一模一样的走廊。你没等看清，就把门拉了回来。');
+      if (point.id==='door'&&i===0) moveTo(...find(2,'E'));
+      const note = result+(i===0?'（遵守守则，星级 +1，上限 5）':'（SAN −8）');
+      duty.log.push(rule.at+'：'+note);
+      persist(note);
+    })));
+    actions.append(button('暂停并返回',()=>overlay.close()));
+  }
+  function atHandover(r) {
+    return r.cat && r.f===1 && tile(r.f,r.x,r.y)==='F';
+  }
+  function renderAlley() {
+    const actions = dutyScreen('港屋酒店 · 后巷','回到前台时，猫在你怀里挣了一下。小林听见动静，从后巷推开半扇员工门，把他值夜时用的空纸箱递给你。');
+    const line = document.createElement('p');
+    line.textContent = '小林低头看着猫：「夜里这楼，比白天诚实。」';
+    actions.before(line);
+    actions.append(button('把猫交给前台，签交班簿',()=>settle(true)));
+    actions.append(button('暂停并返回',()=>overlay.close()));
   }
   function moveTo(f,x,y) {
     const r = run();
@@ -15661,7 +15836,8 @@ const minatoyaData = {"floors":[{"name":"大堂与寄存处","grid":["##########
   }
   function move(x,y) {
     const r = run();
-    if (!r || !currentDay() || busy || Math.abs(x-r.x)+Math.abs(y-r.y)!==1) return;
+    if (!r || !currentDay() || busy || r.duty?.phase==='desk' || r.duty?.phase==='alley'
+        || corridorEvent(r) || Math.abs(x-r.x)+Math.abs(y-r.y)!==1) return;
     const c = tile(r.f,x,y), id = coord(r.f,x,y);
     if ('#!'.includes(c) || (c === '=' && !(r.f === 10 && x===1 && y===5))) return;
     const monster = live(r,x,y);
@@ -15702,9 +15878,17 @@ const minatoyaData = {"floors":[{"name":"大堂与寄存处","grid":["##########
   function settle(success) {
     const r = run(), C = GAME_CONFIG.work.nightShift;
     if (!r || busy || !currentDay() || campaign.nightShiftDay===campaign.day) return;
-    if (success && !(r.cat && r.f===1 && tile(r.f,r.x,r.y)==='F')) return;
+    if (success && (!atHandover(r) || r.duty?.phase!=='alley')) return;
     const rate = r.income ? r.money/r.income : 0;
-    const tier = !success ? 0 : rate>=.65 ? 3 : rate>=.35 ? 2 : 1;
+    const patrolTier = rate>=.65 ? 3 : rate>=.35 ? 2 : 1;
+    const dutyTier = r.duty?.stars == null ? 3 : (GAME_CONFIG.v74?.nightTier?.[r.duty.stars] || 0);
+    const tier = success ? Math.min(patrolTier,dutyTier) : 0;
+    const metKobayashi = success && !campaign.minatoyaKobayashiTrust;
+    if (metKobayashi) {
+      campaign.minatoyaKobayashiTrust = true;
+      campaign.trust ??= {};
+      campaign.trust.kobayashi = (campaign.trust.kobayashi || 0)+1;
+    }
     const bonus = [0,1000,2000,5000][tier];
     const allowance = success ? (window.V74?.allowance('night') || 0) : 0;
     const base = success ? C.income : 0;
@@ -15716,13 +15900,15 @@ const minatoyaData = {"floors":[{"name":"大堂与寄存处","grid":["##########
     campaign.nightShiftDay = campaign.day;
     delete campaign.minatoyaRun;
     const receipt = success ? '酒店夜勤 · '+ '★'.repeat(tier)+' · 基础 ¥'+base+' · 塔内收入 ¥'+r.income+' · 强化支出 ¥'+(r.income-r.money)+' · 带出 ¥'+r.money+' · 星级奖金 ¥'+bonus+' · 道具津贴 ¥'+allowance+' · 实发 ¥'+wage : '提前离班。本班塔内收入未结算。';
-    (campaign.nightShiftLog ??= []).push(receipt);
+    const dutyNote = r.duty?.stars == null ? '' : ' · 值守与守则 ★'+r.duty.stars+' / 5';
+    const trustNote = metKobayashi ? ' · 小林信任 +1' : '';
+    (campaign.nightShiftLog ??= []).push([...(r.duty?.log || []),receipt+dutyNote+trustNote].join(' / '));
     recoveryRefresh(receipt);
     overlay.replaceChildren();
     const title = document.createElement('h2');
     title.textContent = success?'夜班工资单':'夜班结束';
     const line = document.createElement('p');
-    line.textContent = receipt;
+    line.textContent = receipt+dutyNote+trustNote;
     const close = document.createElement('button');
     close.textContent = '返回酒店';
     close.onclick = () => overlay.close();
@@ -15741,6 +15927,10 @@ const minatoyaData = {"floors":[{"name":"大堂与寄存处","grid":["##########
   function render() {
     const r = run();
     if (!r || !overlay.open) return;
+    if (r.duty?.phase==='desk') { renderDesk(r); return; }
+    if (r.duty?.phase==='alley') { renderAlley(); return; }
+    const point = corridorEvent(r);
+    if (point) { renderRule(r,point); return; }
     const focus = document.activeElement?.dataset?.mnCell;
     const floor = D.floors[r.f-1];
     const c = tile(r.f,r.x,r.y);
@@ -15825,7 +16015,11 @@ const minatoyaData = {"floors":[{"name":"大堂与寄存处","grid":["##########
         persist('已领取'+g.name+'。');
       }));
     }
-    if(c==='F'&&r.cat) actions.append(button('救猫交班',()=>settle(true)));
+    if(atHandover(r)) actions.append(button('抱着猫去交班',()=>{
+      r.duty ??= {log:[]};
+      r.duty.phase = 'alley';
+      persist('');
+    }));
     actions.append(button('暂停并返回',()=>overlay.close()),button('提前离班',()=>{if(confirm('结束本班？塔内收入不会结算。'))settle(false);}));
     overlay.querySelector('.mn-hint').textContent = message || '点击怪物查看战损，方向键或屏幕箭头踏入开战。';
   }
@@ -15845,7 +16039,7 @@ const minatoyaData = {"floors":[{"name":"大堂与寄存处","grid":["##########
       if(!spendAction('work')) return;
       campaign.minatoyaRun=fresh(campaign.day);
       campaignSave();
-      message='有住客避开前台，把小猫带进酒店。现在猫不见了。';
+      message='佐藤把交接簿翻到今晚那一页。你刚坐下，铃就响了。';
     } else message='继续本班夜勤。';
     selection=null;
     if(!overlay.open) overlay.showModal();
@@ -15857,7 +16051,7 @@ const minatoyaData = {"floors":[{"name":"大堂与寄存处","grid":["##########
     oldButton.apply(this,arguments);
     const entry=box.children[first], note=box.children[first+1];
     if(entry&&currentDay()) entry.textContent='继续港屋酒店夜勤';
-    if(note&&!nightShiftGate().length) note.textContent='酒店夜勤 · 进入 15 层酒店，找到走失的小猫，回前台交班。';
+    if(note&&!nightShiftGate().length) note.textContent='夜勤：先在前台接待客人，再按守则巡楼。找到走失的小猫后，回前台交班。';
   };
 })();
 

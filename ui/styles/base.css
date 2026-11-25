@@ -1393,6 +1393,8 @@ body.et.op-mode main#app{padding:env(safe-area-inset-top) 0 env(safe-area-inset-
 .op-next{min-width:150px}
 /* 黑底文字 */
 .op-void .op-body{text-align:center;align-items:center}
+.op-evening .op-bg{order:1;align-self:center;width:min(100%,480px);max-height:29vh;margin:16px 0 0}
+.op-evening .op-body{min-height:7em}
 .op-black .op-stage{background:#000}
 .op-flicker{animation:opFlicker .7s steps(2,end)}
 /* 复古电脑终端 */
