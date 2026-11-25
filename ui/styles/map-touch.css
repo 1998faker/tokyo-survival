@@ -1,0 +1,3 @@
+/* 统一移动操作：移动地图可单指触摸，防止触摸滑动画面 */
+#h18-canvas,#ex-canvas,#day-canvas,#district-world {touch-action: manipulation;cursor:crosshair;}
+#district-world .district-hit,#district-world .district-player{touch-action:manipulation;}

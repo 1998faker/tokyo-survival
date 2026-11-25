@@ -1,0 +1,15 @@
+
+/* Same 512×352 canvas, 32px tiles and 16×16 (2×) sprites as hotel night search. */
+body.et .street-pixel,body.et .day-map{aspect-ratio:16/11;height:auto;max-width:768px;width:100%;position:relative;background:#252630;border:2px solid #796e60;border-radius:0;overflow:hidden}
+.street-pixel>canvas,#day-canvas{display:block;width:100%;height:100%;image-rendering:pixelated}
+body.et .street-pixel .district-player{width:6.25%;height:auto;background:none;border:0;box-shadow:none;padding:0;pointer-events:none;transform:translate(-50%,-50%)}
+.street-pixel .district-player canvas{width:100%;display:block;image-rendering:pixelated}
+.street-hot,body.et .day-object,body.et .street-pixel .district-hit{position:absolute;transform:translate(-50%,-50%);width:44px;min-width:44px;height:44px;padding:0;border:0!important;background:transparent!important;box-shadow:none;color:#f4d38d;cursor:pointer;z-index:3;overflow:visible;font:700 18px monospace}
+.street-hot b,.day-object>span,.street-pixel .district-hit>b{position:absolute;left:15px;top:-8px;font:700 18px monospace!important;text-shadow:2px 2px #111}
+.street-hot small,.day-object small,.street-pixel .district-hit small{position:absolute;top:32px;left:50%;transform:translateX(-50%);white-space:nowrap;font:11px/1.5 monospace;background:#14151de8;color:#e4d7bd;padding:0 3px;max-width:130px}
+.street-hot:hover,.street-hot:focus-visible,body.et .day-object:hover,body.et .day-object:focus-visible{outline:2px solid #f4d38d;outline-offset:1px}
+body.et .day-object.done{opacity:1;background:transparent}
+body.et .day-map .day-road{display:none}
+body.et .day-dialogue{background:#171820;border:1px solid #796e60;color:#e4d7bd;border-radius:0}
+@media(max-width:470px){.street-hot small,.day-object small,.street-pixel .district-hit small{font-size:9px}.street-hot b,.day-object>span{font-size:16px!important}.street-hot,body.et .day-object{width:36px;min-width:36px;height:36px}}
+

@@ -1,0 +1,154 @@
+
+/* ===================================================================
+   v55 全游戏一屏化（只改布局与呈现，不改玩法 / 数值 / 文案 / 存档）
+   - 整页永远不滚：html、body 不滚；#app 固定为一屏高，内容区（顶栏与底栏之间）兜底内滚
+   - 菜单页面在一屏内重新排版：主页两栏 + 车站网格；任务 / 背包 / 设置标签页；档案两栏；推理、邮件面板内滚
+   - 长结算分页：夜间结算明细、结局页
+   =================================================================== */
+html,body{height:100%;overflow:hidden!important;overscroll-behavior:none}
+main#app{height:100vh;height:100dvh;overflow-y:auto;overflow-x:hidden;box-sizing:border-box;-webkit-overflow-scrolling:touch}
+.os-fit{height:var(--os-avail,auto);max-height:var(--os-avail,none);min-height:0;box-sizing:border-box;margin-top:0!important;margin-bottom:0!important}
+.os-scroll{overflow-y:auto;overflow-x:hidden;min-height:0;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+body.os-wide main#app{max-width:min(1240px,100%)!important}
+
+/* 浮动按钮（収容物 / 推理 / 回到雨夜 / 手机底部指令条）压到内容区时，一屏页面底部预留出它们的位置 */
+.os-fit.os-fit{padding-bottom:var(--os-res,0px)!important}
+body.os-dock #ct-fab{bottom:calc(var(--m46-nav,66px) + 70px)!important}
+/* ---------- 像素窗主页（M46）：只把高度收进一屏，地图按格子框缩放 ---------- */
+.m46.os-fit{grid-template-rows:minmax(0,1fr);align-items:stretch}
+.m46.os-fit>.m46-left{min-height:0;gap:14px}
+.m46.os-fit .m46-map{flex:1 1 auto;min-height:0;overflow:hidden;position:relative}
+.m46.os-fit .m46-map .et-map-wrap,.m46.os-fit .m46-map #map-host{height:100%;overflow:hidden!important}
+.m46.os-fit .m46-map .m25{transform-origin:0 0}
+.m46.os-fit>.m46-right{min-height:0;overflow:hidden}
+.m46.os-fit .os-viewbar{position:absolute;z-index:9;right:8px;top:8px;display:flex;gap:4px}
+.m46.os-fit .os-viewbar button{font-size:12px;line-height:1.4;font-family:inherit;padding:3px 9px;border-radius:5px;border:2px solid var(--rim,#aeb6c3);background:var(--wbs,#0d1220);color:var(--ink,#e8ebf0);cursor:pointer}
+.m46.os-fit .os-viewbar button[aria-pressed="true"]{background:#2a3348;color:#e9c977;border-color:#e9c977}
+.m46.os-fit .os-stgrid{position:absolute;inset:0;padding:40px 8px 8px;overflow-y:auto}
+.m46.os-fit.os-v-grid .et-map-wrap,.m46.os-fit.os-v-grid .m46-linechip{visibility:hidden}
+.m46.os-fit.os-v-grid .m46-phase{z-index:10}
+.m46.os-fit .os-stgrid button{color:var(--ink,#e8ebf0);border-color:var(--line,#2a3348);background:rgba(127,140,160,.08)}
+.m46.os-fit .os-stgrid button.os-sel{border-color:var(--acc,#e9c977);background:rgba(233,201,119,.12)}
+.m46.os-fit.os-v-map .os-stgrid{display:none}
+/* ---------- 主页 ---------- */
+.os-home{display:grid!important;grid-template-columns:300px minmax(0,1fr);grid-template-rows:minmax(0,1fr);gap:12px;padding:0!important}
+.os-home>.os-left{grid-column:1;grid-row:1;min-height:0}
+.os-home>.os-mappanel{grid-column:2;grid-row:1;min-height:0}
+.os-home>.os-notice:empty{display:none}
+@media (min-width:701px){.os-home>.os-notice,.os-home>.os-strip{display:none!important}}
+.os-home .os-left{display:flex;flex-direction:column;gap:8px;padding:0 4px 64px 0}
+.os-home .os-left>*{margin:0!important;flex:none}
+.os-home .os-left .survival-box,.os-home .os-left .rpg-panel{padding:10px 12px!important}
+.os-home .os-left h2{font-size:16px!important;margin:2px 0 6px!important}
+.os-home .os-left p{font-size:12.5px;line-height:1.5;margin:4px 0!important}
+.os-home .os-left .daily-buttons{display:flex;flex-wrap:wrap;gap:6px}
+.os-home .os-left .daily-buttons>button,.os-home .os-left .survival-btn{padding:8px 10px!important;font-size:13px!important;margin:4px 0 0!important}
+.os-home .os-left .rpg-nav{display:grid!important;grid-template-columns:1fr 1fr;gap:6px}
+.os-home .os-left .rpg-nav button{margin:0!important;font-size:12.5px;padding:7px 6px}
+.os-home .rpg-hero{padding:8px 12px!important}
+.os-home .rpg-hero canvas,.os-home .rpg-hero .rpg-title,.os-home .rpg-hero .rpg-tiny{display:none!important}
+.os-home .rpg-hero .rpg-stat{margin:4px 0 0!important;flex-wrap:wrap;gap:4px}
+.os-home .rpg-hero .rpg-pill{font-size:11.5px;padding:3px 7px}
+.os-home .os-mappanel{display:flex!important;flex-direction:column;min-height:0;margin:0!important;padding:10px 12px!important;gap:8px}
+.os-home .os-mappanel>*{flex:none;margin:0!important}
+.os-home .os-mappanel .rpg-section-head h2{font-size:16px!important}
+.os-home .map-legend{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto;gap:6px;padding-bottom:2px;scrollbar-width:thin}
+.os-home .map-legend .line-chip{flex:none;white-space:nowrap;font-size:12px;padding:5px 9px}
+.os-home .os-viewbar{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--sub,#9aa5bf)}
+.os-home .os-viewbar button{font:inherit;font-size:12px;padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.04);color:inherit;cursor:pointer}
+.os-home .os-viewbar button[aria-pressed="true"]{border-color:#e8c46a;color:#e8c46a}
+.os-home .os-viewbar .os-sp{flex:1}
+.os-stgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:6px;align-content:start;flex:1 1 auto!important}
+.os-stgrid button{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:1px;min-height:46px;padding:5px 8px;border-radius:7px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.035);color:inherit;font:inherit;text-align:left;cursor:pointer;line-height:1.25}
+.os-stgrid button b{font-size:14px;font-weight:700}
+.os-stgrid button small{font-size:10.5px;opacity:.72;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.os-stgrid button.os-sel{border-color:#e8c46a;box-shadow:0 0 0 1px #e8c46a inset;background:rgba(232,196,106,.08)}
+.os-stgrid button.os-here b::after{content:" 📍";font-size:11px}
+.os-stgrid button.os-flood{opacity:.55}
+.os-home .os-mappanel #map-host{flex:1 1 auto!important;min-height:0;overflow:hidden!important;position:relative}
+.os-home .os-mappanel #map-host>.m25{transform-origin:0 0}
+.os-home.os-v-grid #map-host,.os-home.os-v-grid .map-help{display:none!important}
+.os-home.os-v-map .os-stgrid{display:none!important}
+.os-home .map-help{font-size:11.5px}
+.os-home #station-info{padding:8px 10px!important;max-height:34%;overflow-y:auto}
+.os-home #station-info h3{font-size:16px;margin:2px 0}
+.os-home #station-info p{font-size:12.5px;margin:3px 0}
+.os-home #station-info .rpg-action{margin-top:6px}
+.os-home .os-strip,.os-home .os-drawer-x{display:none}
+
+/* ---------- 标签页（任务 / 背包 / 设置） ---------- */
+.os-tabs{display:grid!important;grid-template-columns:210px minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto;grid-template-areas:"head head" "bar main" "foot foot";gap:10px;padding:0!important}
+.os-tabs>.et-page-head{grid-area:head;margin:0!important;padding:8px 12px!important}
+.os-tabs>.et-page-head h1{font-size:19px!important}
+.os-tabbar{grid-area:bar;display:flex;flex-direction:column;gap:5px;padding:0 0 64px}
+.os-tabbar button{text-align:left;font:inherit;font-size:13.5px;padding:9px 11px;border-radius:7px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);color:inherit;cursor:pointer;line-height:1.3}
+.os-tabbar button[aria-selected="true"]{border-color:#e8c46a;color:#e8c46a;background:rgba(232,196,106,.08)}
+.os-main{grid-area:main;display:block;padding-right:2px}
+.os-main>section{margin:0 0 10px!important}
+.os-main>.os-off{display:none!important}
+.os-foot{grid-area:foot;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.os-foot:empty{display:none}
+.os-foot>*{margin:0!important}
+.os-tabs .et-items{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
+.os-tabs .et-item{margin:0!important;align-items:flex-start}
+.os-tabs.os-all .os-main{columns:2 360px;column-gap:12px}
+.os-tabs.os-all .os-main>section{break-inside:avoid}
+
+/* ---------- 两栏 / 内滚（档案、推理、邮件） ---------- */
+.os-flex{display:flex!important;flex-direction:column;gap:8px;padding:0!important}
+.os-flex>*{flex:none;margin:0!important}
+.os-flex>.et-page-head{padding:8px 12px!important}
+.os-flex>.et-page-head h1{font-size:19px!important}
+.os-flex>.os-grow{flex:1 1 auto!important;min-height:0}
+.os-arch{display:grid!important;grid-template-columns:300px minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto;grid-template-areas:"head head" "list main" "foot foot";gap:10px;padding:0!important}
+.os-arch>.et-page-head{grid-area:head;margin:0!important;padding:8px 12px!important}
+.os-arch>.et-page-head h1{font-size:19px!important}
+.os-arch>.et-files-head{grid-area:list;margin:0!important}
+.os-arch>.os-main{grid-area:main}
+.os-arch>.os-foot{grid-area:foot}
+.os-nb .nb{display:flex!important;min-height:0;height:auto!important;max-height:none!important}
+.os-nb .nb-spread{flex:1;min-height:0;height:auto!important;max-height:100%}
+.os-nb .nb-page{overflow-y:auto!important;max-height:100%;min-height:0}
+.os-nb .nb-idx{overflow-y:auto;max-height:100%}
+
+/* ---------- 分页（夜间结算、结局） ---------- */
+.os-pager{display:flex;align-items:center;justify-content:center;gap:10px;margin:8px 0 2px;font-size:13px}
+.os-pager button{font:inherit;font-size:13px;padding:6px 12px;border-radius:7px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:inherit;cursor:pointer}
+.os-pager button:disabled{opacity:.35;cursor:default}
+.os-pgoff{display:none!important}
+.os-paged{display:flex!important;flex-direction:column;overflow:hidden}
+.os-paged>.os-pager{margin-top:auto}
+
+/* ---------- 手机 ---------- */
+@media (max-width:700px){
+ .m46.os-fit{display:flex!important;flex-direction:column;gap:10px}
+ .m46.os-fit>.m46-left{flex:1 1 auto;display:flex;flex-direction:column;gap:10px}
+ .m46.os-fit>.m46-right{flex:0 1 auto;max-height:30%;margin-top:0!important;overflow-y:auto}
+ .m46.os-fit .m46-msg{min-height:0}
+ .m46.os-fit .m46-map #map-host.map-scroller{overflow-x:auto!important;overflow-y:hidden!important;scrollbar-width:none}
+ .os-home{display:flex!important;flex-direction:column;gap:6px;position:relative}
+ .os-home .os-left{display:none;position:absolute;inset:0;z-index:30;background:var(--bg,#0f1524);padding:44px 6px 70px;border-radius:8px;box-shadow:0 8px 30px rgba(0,0,0,.6)}
+ .os-home.os-drawer .os-left{display:flex}
+ .os-home .os-drawer-x{display:block;position:absolute;top:8px;right:10px;z-index:31}
+ .os-home:not(.os-drawer) .os-drawer-x{display:none}
+ .os-home .os-strip{display:flex;gap:6px;overflow-x:auto;flex:none;padding-bottom:2px;scrollbar-width:none}
+ .os-home .os-strip button{flex:none;font:inherit;font-size:12.5px;padding:7px 10px;border-radius:7px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.05);color:inherit;white-space:nowrap}
+ .os-home .os-strip button.os-pri{border-color:#e8c46a;color:#e8c46a}
+ .os-home .os-strip button:disabled{opacity:.4}
+ .os-home .os-notice{flex:none;max-height:38%;overflow-y:auto}
+ .os-home .os-mappanel{flex:1 1 auto;padding:8px!important;gap:6px}
+ .os-home .os-mappanel .rpg-section-head{display:none!important}
+ .os-stgrid{grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+ .os-stgrid button{min-height:40px;padding:4px 5px}
+ .os-stgrid button b{font-size:12.5px}
+ .os-stgrid button small{font-size:9.5px}
+ .os-home #station-info{max-height:40%}
+ .os-tabs,.os-arch{grid-template-columns:minmax(0,1fr);grid-template-areas:"head" "bar" "main" "foot";grid-template-rows:auto auto minmax(0,1fr) auto;gap:6px}
+ .os-arch{grid-template-areas:"head" "list" "main" "foot"}
+ .os-arch>.et-files-head{max-height:42%}
+ .os-tabbar{flex-direction:row;overflow-x:auto;padding:0;gap:5px;scrollbar-width:none}
+ .os-tabbar button{flex:none;white-space:nowrap;padding:7px 10px;font-size:12.5px}
+ .os-tabs .et-items{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .os-tabs.os-all .os-main{columns:1}
+ .os-tabs>.et-page-head,.os-flex>.et-page-head,.os-arch>.et-page-head{padding:6px 10px!important}
+}

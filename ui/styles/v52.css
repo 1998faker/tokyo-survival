@@ -1,0 +1,104 @@
+
+/* ==== ui/v52.css ==== */
+/* 场景异常指数：状态栏下方右侧，大号数字 */
+#v52-meter{position:fixed;right:16px;top:calc(max(68px,var(--v51-top,0px)) - 42px);z-index:1001;display:flex;align-items:baseline;gap:.45rem;
+ padding:4px 10px;background:rgba(8,10,14,.82);border:1px solid #5d6b6a;border-radius:4px;color:#cfe8d6;font-family:var(--et-mono,monospace);pointer-events:none}
+#v52-meter small{font-size:.72rem;color:#8fa59a;letter-spacing:.08em}
+#v52-meter b{font-size:1.35rem;min-width:4.6em;white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums}
+#v52-meter.hi b{color:#f0b26a}
+#v52-meter.over{border-color:#b33a3a}
+#v52-meter.over b{color:#ff6b6b}
+@media(max-width:520px){#v52-meter{right:6px;padding:2px 7px}#v52-meter b{font-size:1.1rem}}
+
+/* 浸蚀阶段 */
+.v52-ero.hi,.v52-ero-chip{color:#e3a0a0}
+.v52-ero-line{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem;margin:.4rem 0;font-size:.9rem}
+.v52-ero-line>span{color:#9fb0b8;margin-right:.3rem}
+.v52-ero-line i{color:#55606a;font-style:normal}
+.v52-ero-line b{font-weight:600;color:#d8c9a8}
+.v52-ero-line b.now{color:#ff9b8a}
+.v52-ero-line b.unk{color:#6e6a76;letter-spacing:.1em}
+.v52-stamp{animation:v52-stamp .6s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes v52-stamp{from{transform:scale(2.2) rotate(-8deg);opacity:0}to{transform:none;opacity:1}}
+
+/* 压力感官：只模糊场景和地图层，不模糊对话框文字 */
+body.v52-blur #app canvas,body.v52-blur #app .m25-img,body.v52-blur #app .m25 .station,body.v52-blur #app .district-world,body.v52-blur #app .scene-img{filter:blur(var(--v52-blur,1.6px));transition:filter .5s}
+body.v52-sway #app{animation:v52-sway 2.6s ease-in-out}
+@keyframes v52-sway{0%,100%{transform:none}25%{transform:translateX(4px) rotate(.5deg)}55%{transform:translateX(-3px) rotate(-.4deg)}80%{transform:translateX(2px) rotate(.2deg)}}
+body.v52-vignette::after,body.v52-faint-soft::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:998;background:radial-gradient(ellipse at center,transparent 45%,rgba(0,0,0,.65));animation:v52-fade 2.6s ease-in-out}
+@keyframes v52-fade{0%,100%{opacity:0}40%,70%{opacity:1}}
+body.v52-faint #app{animation:v52-faint 1.6s ease-in forwards}
+body.v52-faint::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:999;background:#000;animation:v52-black 1.6s ease-in forwards}
+@keyframes v52-faint{0%{transform:none;filter:none}50%{transform:translateX(6px) rotate(1deg);filter:blur(2px)}100%{transform:translateY(10px) rotate(-2deg);filter:blur(4px)}}
+@keyframes v52-black{0%{opacity:0}60%{opacity:.6}100%{opacity:1}}
+@media(prefers-reduced-motion:reduce){body.v52-sway #app,body.v52-faint #app{animation:none}}
+
+/* DAY 3 余震过场 */
+.v52q{position:fixed;inset:0;z-index:1200;background:#000;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.v52q-frame{position:relative;width:min(100vw,calc((100vh - 150px) * 16 / 9),1100px)}
+.v52q canvas{display:block;width:100%;aspect-ratio:16/9;image-rendering:pixelated}
+.v52q-cap{min-height:96px;padding:12px 18px;color:#efe7d2;font-size:1.05rem;line-height:1.7;background:#0b0b0d}
+.v52q-cap p{margin:0 0 .25rem}
+.v52q-jp{color:#f4e3b0}
+.v52q-zh{color:#a8a294;font-size:.92rem}
+.v52q-jit{color:#9fd0d8;letter-spacing:.3em;animation:v52q-jit .18s steps(2) infinite}
+@keyframes v52q-jit{50%{transform:translate(2px,-1px);opacity:.75}}
+.v52q-skip{position:absolute;right:10px;top:10px;background:rgba(0,0,0,.5);color:#ccc;border:1px solid #555;padding:4px 10px;cursor:pointer}
+body.v52q-on #v52-meter{display:none}
+#v52-meter[hidden]{display:none}
+/* 结局后的预言演出 */
+.v52p{position:fixed;inset:0;z-index:1300;background:#000}
+.v52p iframe{width:100%;height:100%;border:0;display:block}
+.v52p-skip{position:absolute;right:12px;bottom:12px;background:rgba(0,0,0,.5);color:#bbb;border:1px solid #555;padding:4px 10px;cursor:pointer;z-index:2}
+.v52p-val{font-size:1.2rem}.v52p-val b{color:#ff9b8a;font-size:1.6rem}
+.v52-proph{color:#ff9b8a}
+
+/* ---- 便利店打工 · 第一轮界面 ---- */
+body:has(#kb-root) #et-nav{display:none}
+#kb-root #ch1-patience,#kb-root .kb-pat{display:none!important}
+.kb-pfring{--p:100%;--c:#5fbf7a;position:relative;flex:none;display:inline-grid;place-items:center;width:84px;height:84px;border-radius:50%;
+ background:conic-gradient(var(--c) var(--p),rgba(255,255,255,.08) 0);transition:--p .3s}
+.kb-pfring[data-lv=mid]{--c:#e2b04a}.kb-pfring[data-lv=low]{--c:#e05a4f;animation:kb-pulse 1s ease-in-out infinite}
+.kb-pfring.wet{background:none}
+.kb-pfring>img.kb-pf{width:72px!important;height:72px!important;border-radius:50%;object-fit:cover;background:#1b2230}
+@keyframes kb-pulse{50%{filter:brightness(1.35)}}
+.kb-steps{display:flex;flex-wrap:wrap;gap:6px;list-style:none;margin:8px 0 4px;padding:0}
+.kb-steps li{padding:4px 12px;border-radius:999px;border:1px solid #3c4658;color:#7d8798;font-size:.95rem}
+.kb-steps li.done{background:#1f3a2a;border-color:#2f6b45;color:#9fdcb2}
+.kb-steps li.now{border:2px solid #e8c46a;color:#f5dc96;background:#3a3220;font-weight:600}
+#kb-root .kb-guide{margin:2px 0 8px;padding:6px 12px;font-size:.9rem;opacity:.9}
+/* 柜台：托盘 → 扫描器（下面是微波炉 / 热柜 / 预订架 / 废弃箱）→ 装袋 → 收银机 */
+#kb-root .kb-bench{display:grid!important;grid-template-columns:minmax(0,1.15fr) 22px minmax(0,1fr) 22px minmax(0,1fr) minmax(0,1.25fr);
+ grid-template-areas:"tray a1 scan a2 bags pos" "tray a1 dev a2 bags pos";grid-template-rows:auto 1fr;gap:10px;align-items:stretch}
+#kb-root .kb-center{display:contents}
+#kb-root .kb-counter{grid-area:tray;min-height:220px}
+#kb-root .kb-scan{grid-area:scan;min-height:110px}
+#kb-root .kb-dev{grid-area:dev;display:grid!important;grid-template-columns:1fr 1fr;gap:6px;align-content:start}
+#kb-root .kb-dev .kb-mic{grid-column:1/-1}
+#kb-root .kb-bags{grid-area:bags;display:flex!important;flex-direction:column;gap:8px;margin:0!important}
+#kb-root .kb-bags .kb-bag{flex:1;min-height:100px}
+#kb-root .kb-bags-head{font-size:.85rem}
+#kb-root .kb-pos{grid-area:pos}
+.kb-arrow{display:flex;align-items:center;justify-content:center;color:#6c7688;font-style:normal;font-size:1.2rem}
+.kb-arrow.a1{grid-area:a1}.kb-arrow.a2{grid-area:a2}
+#kb-root .kb-item{min-width:84px;min-height:84px;font-size:.92rem}
+#kb-root .kb-item .kb-ic{font-size:1.7rem}
+#kb-root .kb-item.scanned{opacity:.72}
+.kb-temp{display:block;font-style:normal;font-size:.72rem;margin-top:2px;border-radius:4px;padding:0 4px}
+.kb-temp.cold{background:#1f3550;color:#9cd0ff}.kb-temp.hot{background:#4a2a1f;color:#ffb38a}.kb-temp.heat{background:#3a3424;color:#e8d29a}
+@media(max-width:760px){
+ #kb-root .kb-bench{grid-template-columns:1fr;grid-template-areas:"tray" "scan" "dev" "bags" "pos";grid-template-rows:none}
+ .kb-arrow{display:none}
+ #kb-root .kb-bags{flex-direction:row}
+}
+.rpg-shell.kb-shell{max-width:1160px!important;width:100%!important}
+#kb-root .kb-tray{display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start}
+#kb-root .kb-bags-head{white-space:nowrap}
+@media(max-width:760px){
+ #kb-root .kb-counter{min-height:120px}
+ #kb-root .kb-bags{display:grid!important;grid-template-columns:1fr 1fr}
+ #kb-root .kb-bags-head{grid-column:1/-1}
+ #kb-root .kb-scan{min-height:72px}
+}
+body:has(#kb-root) #app{max-width:1180px!important}
+

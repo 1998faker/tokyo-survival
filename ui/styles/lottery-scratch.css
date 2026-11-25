@@ -1,0 +1,12 @@
+
+.lottery-card-scratch{margin:12px 0 8px;max-width:560px}
+.lottery-scratch-caption{font-size:12px;letter-spacing:.06em;color:#aab2c2;margin:6px 0}
+.lottery-scratch-stage{position:relative;overflow:hidden;border:2px solid #bba573;border-radius:13px;box-shadow:0 4px 0 rgba(0,0,0,.22),inset 0 0 18px rgba(13,13,19,.6);background:#1d1a23;aspect-ratio:520/180;width:100%;max-width:520px;user-select:none;-webkit-user-select:none}
+.lottery-scratch-under{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-around;padding:14px;gap:10px;background:radial-gradient(circle at 50% 25%,#53412b,#211e2a 78%)}
+.lottery-scratch-cell{flex:1;min-width:0;border-radius:10px;border:1px solid #d5b76b;background:linear-gradient(160deg,#fff4c8,#e7c376);padding:12px 4px;text-align:center;color:#3d2b12;box-shadow:0 3px 0 rgba(0,0,0,.25)}
+.lottery-scratch-cell small{display:block;letter-spacing:.1em;font-size:10px;font-weight:800}
+.lottery-scratch-cell strong{display:block;font-size:clamp(16px,3vw,26px);line-height:1.35;font-variant-numeric:tabular-nums;white-space:nowrap}
+.lottery-scratch-canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair}
+.lottery-scratch-status{margin:6px 0;font-size:13px;color:#d5c49a}
+.lottery-win{border:1px solid #bca26b;border-radius:9px;padding:12px;margin:10px 0;background:linear-gradient(120deg,rgba(193,153,75,.16),rgba(193,153,75,.04))}
+.lottery-win strong{font-size:clamp(20px,4vw,30px);color:#f1d388}

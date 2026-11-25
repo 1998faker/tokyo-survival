@@ -1,0 +1,25 @@
+
+/* Investigation board: maintain readable controls for desktop and touch screens */
+.inv-category-row,.inv-hint-buttons,.inv-time-actions{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 12px}
+.inv-filter-panel{padding:12px;border:1px solid rgba(130,140,150,.25);border-radius:12px;margin-bottom:12px}
+.inv-filter-controls{display:flex;align-items:end;gap:10px;flex-wrap:wrap}
+.inv-filter-controls label{display:flex;flex-direction:column;gap:5px;min-width:120px;flex:1}
+.inv-filter-controls label:first-child{flex:2;min-width:200px}
+.inv-filter-controls .inv-unread-check{flex:0 0 auto;flex-direction:row;align-items:center;min-width:100px;padding-bottom:8px}
+.inv-filter-controls select,.inv-timeline-add select,.inv-hint select,.inv-time-fields select,.inv-time-fields input{width:100%;min-height:38px;border-radius:7px;padding:6px;background:var(--panel,#181d27);color:inherit;border:1px solid #667083}
+.inv-hint,.inv-time-info,.inv-timeline-add{padding:12px;margin-bottom:12px;border:1px solid rgba(130,140,150,.25);border-radius:12px}
+.inv-hint label,.inv-timeline-add label{display:block;margin:8px 0}
+.inv-hint-answer{margin-top:10px;padding:10px;border-left:3px solid #8da9c9;background:rgba(130,140,150,.10)}
+.inv-timeline-list{padding-left:28px;display:grid;gap:12px}
+.inv-time-card{padding:12px;border:1px solid rgba(130,140,150,.35);border-radius:10px}
+.inv-time-title{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.inv-time-card p{line-height:1.5}
+.inv-time-fields{display:grid;grid-template-columns:minmax(170px,1fr) minmax(130px,220px);gap:10px}
+.inv-time-fields label{display:flex;flex-direction:column;gap:5px;font-size:13px}
+@media(max-width:600px){.inv-time-fields{grid-template-columns:1fr}.inv-filter-controls label{flex:1 1 100%}.inv-category-row .line-chip{font-size:12px}}
+
+/* 独立推理页：导航在手机端允许七项等分，避免换行挤占地图 */
+body.et .et-nav{display:flex;justify-content:space-around;gap:0}
+body.et .et-nav > button{min-width:0;flex:1 1 0;padding-left:2px;padding-right:2px}
+body.et .et-nav > button b{font-size:clamp(9px,2.3vw,12px)}
+.reasoning-raw-intro{margin-bottom:15px;padding:10px 12px;border:1px solid rgba(180,170,150,.35);border-radius:8px;line-height:1.6}

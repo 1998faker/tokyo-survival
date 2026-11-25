@@ -1,0 +1,4 @@
+.dx-root{min-height:var(--os-avail,100dvh)!important} /* 结局播放：对话框不再落到导航栏后面 */
+.v58-fit .h18-stage{width:var(--v58w)!important;max-width:100%;margin-left:auto!important;margin-right:auto!important}
+.v58-fit .h18-stage canvas{width:100%!important;height:auto!important}
+.v58-fit .h18-controls{margin:4px auto!important;width:var(--v58w);max-width:100%}
